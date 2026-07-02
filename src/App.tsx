@@ -1,82 +1,96 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import {
-  BookOpen, Circle, PlayCircle, ChevronRight, Menu, X
+  BookOpen, Circle, PlayCircle, ChevronRight, ChevronRight as NextIcon, Menu, X, CheckCircle
 } from 'lucide-react';
 import { SYLLABUS } from './data';
+
+// Eager-load first 4 lessons for instant first paint
 import { Lesson1Content, Lesson2Content, Lesson3Content, Lesson4Content } from './components/Lessons1to4';
-import { Lesson5Content, Lesson6Content, Lesson7Content, Lesson8Content } from './components/Lessons5to8';
-import { Lesson9Content, Lesson10Content, Lesson11Content, Lesson12Content, Lesson13Content } from './components/Lessons9to13';
-import { Lesson14Content, Lesson15Content, Lesson16Content, Lesson17Content } from './components/Lessons14to17';
-import { Lesson18Content, Lesson19Content, Lesson20Content } from './components/Lessons18to20';
-import { Lesson21Content, Lesson22Content, Lesson23Content, Lesson24Content, Lesson25Content, Lesson26Content, Lesson27Content } from './components/Lessons21to27';
-import { Lesson28Content, Lesson29Content, Lesson30Content } from './components/Lessons28to30';
-import { Lesson31Content, Lesson32Content, Lesson33Content, Lesson34Content } from './components/Lessons31to34';
-import { Lesson35Content, Lesson36Content, Lesson37Content, Lesson38Content } from './components/Lessons35to38';
-import { Lesson39Content, Lesson40Content, Lesson41Content, Lesson42Content } from './components/Lessons39to42';
-import { Lesson43Content, Lesson44Content, Lesson45Content, Lesson46Content, Lesson47Content } from './components/Lessons43to47';
-import { Lesson48Content, Lesson49Content, Lesson50Content, Lesson51Content } from './components/Lessons48to51';
-import { Lesson52Content, Lesson53Content, Lesson54Content, Lesson55Content } from './components/Lessons52to55';
-import { Lesson56Content, Lesson57Content, Lesson58Content } from './components/Lessons56to58';
+
+// Lazy-load remaining lesson groups — downloaded only when needed
+const lazy = <T extends Record<string, React.ComponentType>>(
+  loader: () => Promise<T>,
+  keys: (keyof T)[]
+): Record<string, React.LazyExoticComponent<React.ComponentType>> =>
+  Object.fromEntries(
+    keys.map(k => [k, React.lazy(() => loader().then(m => ({ default: m[k] as React.ComponentType })))])
+  );
+
+const LAZY_COMPONENTS = {
+  ...lazy(() => import('./components/Lessons5to8'), ['Lesson5Content', 'Lesson6Content', 'Lesson7Content', 'Lesson8Content']),
+  ...lazy(() => import('./components/Lessons9to13'), ['Lesson9Content', 'Lesson10Content', 'Lesson11Content', 'Lesson12Content', 'Lesson13Content']),
+  ...lazy(() => import('./components/Lessons14to17'), ['Lesson14Content', 'Lesson15Content', 'Lesson16Content', 'Lesson17Content']),
+  ...lazy(() => import('./components/Lessons18to20'), ['Lesson18Content', 'Lesson19Content', 'Lesson20Content']),
+  ...lazy(() => import('./components/Lessons21to27'), ['Lesson21Content', 'Lesson22Content', 'Lesson23Content', 'Lesson24Content', 'Lesson25Content', 'Lesson26Content', 'Lesson27Content']),
+  ...lazy(() => import('./components/Lessons28to30'), ['Lesson28Content', 'Lesson29Content', 'Lesson30Content']),
+  ...lazy(() => import('./components/Lessons31to34'), ['Lesson31Content', 'Lesson32Content', 'Lesson33Content', 'Lesson34Content']),
+  ...lazy(() => import('./components/Lessons35to38'), ['Lesson35Content', 'Lesson36Content', 'Lesson37Content', 'Lesson38Content']),
+  ...lazy(() => import('./components/Lessons39to42'), ['Lesson39Content', 'Lesson40Content', 'Lesson41Content', 'Lesson42Content']),
+  ...lazy(() => import('./components/Lessons43to47'), ['Lesson43Content', 'Lesson44Content', 'Lesson45Content', 'Lesson46Content', 'Lesson47Content']),
+  ...lazy(() => import('./components/Lessons48to51'), ['Lesson48Content', 'Lesson49Content', 'Lesson50Content', 'Lesson51Content']),
+  ...lazy(() => import('./components/Lessons52to55'), ['Lesson52Content', 'Lesson53Content', 'Lesson54Content', 'Lesson55Content']),
+  ...lazy(() => import('./components/Lessons56to58'), ['Lesson56Content', 'Lesson57Content', 'Lesson58Content']),
+};
 
 const LESSON_COMPONENTS: Record<string, React.ComponentType> = {
   l1: Lesson1Content,
   l2: Lesson2Content,
   l3: Lesson3Content,
   l4: Lesson4Content,
-  l5: Lesson5Content,
-  l6: Lesson6Content,
-  l7: Lesson7Content,
-  l8: Lesson8Content,
-  l9: Lesson9Content,
-  l10: Lesson10Content,
-  l11: Lesson11Content,
-  l12: Lesson12Content,
-  l13: Lesson13Content,
-  l14: Lesson14Content,
-  l15: Lesson15Content,
-  l16: Lesson16Content,
-  l17: Lesson17Content,
-  l18: Lesson18Content,
-  l19: Lesson19Content,
-  l20: Lesson20Content,
-  l21: Lesson21Content,
-  l22: Lesson22Content,
-  l23: Lesson23Content,
-  l24: Lesson24Content,
-  l25: Lesson25Content,
-  l26: Lesson26Content,
-  l27: Lesson27Content,
-  l28: Lesson28Content,
-  l29: Lesson29Content,
-  l30: Lesson30Content,
-  l31: Lesson31Content,
-  l32: Lesson32Content,
-  l33: Lesson33Content,
-  l34: Lesson34Content,
-  l35: Lesson35Content,
-  l36: Lesson36Content,
-  l37: Lesson37Content,
-  l38: Lesson38Content,
-  l39: Lesson39Content,
-  l40: Lesson40Content,
-  l41: Lesson41Content,
-  l42: Lesson42Content,
-  l43: Lesson43Content,
-  l44: Lesson44Content,
-  l45: Lesson45Content,
-  l46: Lesson46Content,
-  l47: Lesson47Content,
-  l48: Lesson48Content,
-  l49: Lesson49Content,
-  l50: Lesson50Content,
-  l51: Lesson51Content,
-  l52: Lesson52Content,
-  l53: Lesson53Content,
-  l54: Lesson54Content,
-  l55: Lesson55Content,
-  l56: Lesson56Content,
-  l57: Lesson57Content,
-  l58: Lesson58Content,
+  l5: LAZY_COMPONENTS['Lesson5Content'],
+  l6: LAZY_COMPONENTS['Lesson6Content'],
+  l7: LAZY_COMPONENTS['Lesson7Content'],
+  l8: LAZY_COMPONENTS['Lesson8Content'],
+  l9: LAZY_COMPONENTS['Lesson9Content'],
+  l10: LAZY_COMPONENTS['Lesson10Content'],
+  l11: LAZY_COMPONENTS['Lesson11Content'],
+  l12: LAZY_COMPONENTS['Lesson12Content'],
+  l13: LAZY_COMPONENTS['Lesson13Content'],
+  l14: LAZY_COMPONENTS['Lesson14Content'],
+  l15: LAZY_COMPONENTS['Lesson15Content'],
+  l16: LAZY_COMPONENTS['Lesson16Content'],
+  l17: LAZY_COMPONENTS['Lesson17Content'],
+  l18: LAZY_COMPONENTS['Lesson18Content'],
+  l19: LAZY_COMPONENTS['Lesson19Content'],
+  l20: LAZY_COMPONENTS['Lesson20Content'],
+  l21: LAZY_COMPONENTS['Lesson21Content'],
+  l22: LAZY_COMPONENTS['Lesson22Content'],
+  l23: LAZY_COMPONENTS['Lesson23Content'],
+  l24: LAZY_COMPONENTS['Lesson24Content'],
+  l25: LAZY_COMPONENTS['Lesson25Content'],
+  l26: LAZY_COMPONENTS['Lesson26Content'],
+  l27: LAZY_COMPONENTS['Lesson27Content'],
+  l28: LAZY_COMPONENTS['Lesson28Content'],
+  l29: LAZY_COMPONENTS['Lesson29Content'],
+  l30: LAZY_COMPONENTS['Lesson30Content'],
+  l31: LAZY_COMPONENTS['Lesson31Content'],
+  l32: LAZY_COMPONENTS['Lesson32Content'],
+  l33: LAZY_COMPONENTS['Lesson33Content'],
+  l34: LAZY_COMPONENTS['Lesson34Content'],
+  l35: LAZY_COMPONENTS['Lesson35Content'],
+  l36: LAZY_COMPONENTS['Lesson36Content'],
+  l37: LAZY_COMPONENTS['Lesson37Content'],
+  l38: LAZY_COMPONENTS['Lesson38Content'],
+  l39: LAZY_COMPONENTS['Lesson39Content'],
+  l40: LAZY_COMPONENTS['Lesson40Content'],
+  l41: LAZY_COMPONENTS['Lesson41Content'],
+  l42: LAZY_COMPONENTS['Lesson42Content'],
+  l43: LAZY_COMPONENTS['Lesson43Content'],
+  l44: LAZY_COMPONENTS['Lesson44Content'],
+  l45: LAZY_COMPONENTS['Lesson45Content'],
+  l46: LAZY_COMPONENTS['Lesson46Content'],
+  l47: LAZY_COMPONENTS['Lesson47Content'],
+  l48: LAZY_COMPONENTS['Lesson48Content'],
+  l49: LAZY_COMPONENTS['Lesson49Content'],
+  l50: LAZY_COMPONENTS['Lesson50Content'],
+  l51: LAZY_COMPONENTS['Lesson51Content'],
+  l52: LAZY_COMPONENTS['Lesson52Content'],
+  l53: LAZY_COMPONENTS['Lesson53Content'],
+  l54: LAZY_COMPONENTS['Lesson54Content'],
+  l55: LAZY_COMPONENTS['Lesson55Content'],
+  l56: LAZY_COMPONENTS['Lesson56Content'],
+  l57: LAZY_COMPONENTS['Lesson57Content'],
+  l58: LAZY_COMPONENTS['Lesson58Content'],
 };
 
 const App = () => {
@@ -96,10 +110,14 @@ const App = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const lessonMap = useMemo(() => {
+  const { lessonMap, availableLessonIds } = useMemo(() => {
     const map: Record<string, string> = {};
-    SYLLABUS.forEach(p => p.chapters.forEach(c => c.lessons.forEach(l => { map[l.id] = l.title; })));
-    return map;
+    const ids: string[] = [];
+    SYLLABUS.forEach(p => p.chapters.forEach(c => c.lessons.forEach(l => {
+      map[l.id] = l.title;
+      if (l.isAvailable) ids.push(l.id);
+    })));
+    return { lessonMap: map, availableLessonIds: ids };
   }, []);
 
   const lessonTitle = lessonMap[activeLesson] ?? '';
@@ -110,6 +128,15 @@ const App = () => {
     if (isMobile) setIsSidebarOpen(false);
     if (mainScrollRef.current) mainScrollRef.current.scrollTop = 0;
   };
+
+  const handleNextLesson = () => {
+    const idx = availableLessonIds.indexOf(activeLesson);
+    if (idx >= 0 && idx < availableLessonIds.length - 1) {
+      handleLessonSelect(availableLessonIds[idx + 1], true);
+    }
+  };
+
+  const isLastLesson = availableLessonIds[availableLessonIds.length - 1] === activeLesson;
 
   const ActiveLesson = LESSON_COMPONENTS[activeLesson];
 
@@ -222,20 +249,38 @@ const App = () => {
               {lessonTitle}
             </h2>
 
-            {ActiveLesson ? (
-              <ActiveLesson />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                <BookOpen size={48} className="mb-4 text-gray-300" />
-                <p>Nội dung bài học đang được biên soạn...</p>
+            <Suspense fallback={
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-sm">Đang tải bài học...</p>
               </div>
-            )}
+            }>
+              {ActiveLesson ? (
+                <ActiveLesson />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                  <BookOpen size={48} className="mb-4 text-gray-300" />
+                  <p>Nội dung bài học đang được biên soạn...</p>
+                </div>
+              )}
+            </Suspense>
 
             {/* Footer Navigation */}
             <div className="mt-16 pt-8 border-t border-gray-200 flex justify-end">
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-                Hoàn thành bài học
-              </button>
+              {isLastLesson ? (
+                <div className="flex items-center gap-2 text-emerald-600 font-semibold">
+                  <CheckCircle size={20} />
+                  <span>Bạn đã hoàn thành toàn bộ khóa học!</span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleNextLesson}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2"
+                >
+                  Hoàn thành & Bài tiếp theo
+                  <NextIcon size={16} />
+                </button>
+              )}
             </div>
           </div>
         </main>
