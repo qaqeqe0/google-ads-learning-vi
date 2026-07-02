@@ -138,6 +138,7 @@ const App = () => {
             className="md:hidden"
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Đóng menu"
+            tabIndex={isSidebarOpen ? 0 : -1}
           >
             <X size={20} />
           </button>

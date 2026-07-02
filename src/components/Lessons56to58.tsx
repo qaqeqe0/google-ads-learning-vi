@@ -413,7 +413,8 @@ export const Lesson56Content = () => (
 
     <InteractiveChecklist
       id="chk56"
-      items={[
+      title="Checklist Cập nhật Google Ads 2025-2026"
+      tasks={[
         'Kiểm tra AI Overview Ads: Phân đoạn → Mạng → AI Overviews (chụp màn hình impression)',
         'Xác nhận đã migrate từ Discovery → Demand Gen (không còn Discovery nào đang chạy)',
         'Check Consent Mode: Chuyển đổi → Diagnostis → Status = Active + Modeling = On',
@@ -690,7 +691,8 @@ export const Lesson57Content = () => (
 
     <InteractiveChecklist
       id="chk57"
-      items={[
+      title="50-điểm Audit Checklist"
+      tasks={[
         'Hoàn thành Nhóm 1 Tracking (10 điểm) – ghi điểm số thực tế của tài khoản',
         'Hoàn thành Nhóm 5 Lãng phí (10 điểm) – tìm ít nhất 3 mục cần sửa',
         'Hoàn thành Nhóm 3 Từ khóa (10 điểm) – kiểm tra search terms 30 ngày',
@@ -1048,7 +1050,8 @@ export const Lesson58Content = () => (
 
     <InteractiveChecklist
       id="chk58"
-      items={[
+      title="Checklist thi chứng chỉ Google Ads"
+      tasks={[
         'Làm Knowledge Check Search trên Skillshop – đạt >80% mới thi thật',
         'Thuộc bảng "Chọn nhanh" (10 dòng) – gặp từ khóa là khoanh ngay',
         'Thuộc 7 dạng câu hỏi lặp 80% đề',

@@ -31,7 +31,7 @@ export const InteractiveChecklist = ({ id, title, tasks }: { id: string, title: 
       <div className="p-4 space-y-3">
         {tasks.map((task, idx) => (
           <div
-            key={task}
+            key={`${id}-${idx}`}
             role="checkbox"
             aria-checked={!!checkedItems[idx]}
             tabIndex={0}
